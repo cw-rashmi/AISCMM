@@ -49,7 +49,15 @@ The Boards Manager window opens, scroll the window page to bottom till you see t
 
 ![The home page image is not found](https://github.com/cw-rashmi/AISCMM/blob/master/src/NodeMCU/pics/9.jpg)
 
-* Upload the program to NodeMCU and check the output on the Serial Monitor
+### Include DallasTemperature and OneWire packages.
+
+* Download the DallasTemperature-3.8.0.zip and OneWire-2.3.3.zip from the AISCMM/src/NodeMCU from github.
+* In the Adruino IDE, traverse to Sketch>Include Library>Add .ZIP Library, browse to the location of the zip files and click okay.
+
+### Upload the program to NodeMCU and check the output on the Serial Monitor
+
+* to upload the program first click the verify button below the menu bar and the click the upload button to upload the code to NodeMCU.
+* after 100% upload of the program the output can be monitored on the serial monitor.
 
 ### Connecting Temperature Sensor to the Node MCU
 
@@ -67,4 +75,3 @@ KG003 soil moisture sensor is used to measure the soil moisture. This is a simpl
 
 ![The home page image is not found](https://github.com/cw-rashmi/AISCMM/blob/master/src/NodeMCU/pics/11.jpg)
 
-**NOTE**: Before running the  scripts  for create a csv file containing the ip addresses of all the nodemcus installed in the farm with the name: “nmcu_ip.csv”. Create another csv file with the name “ping_ip_list.csv”.
