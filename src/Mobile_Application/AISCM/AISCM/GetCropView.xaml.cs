@@ -23,13 +23,14 @@ namespace AISCM
         {
             InitializeComponent();
             String[] cropList = new String[100];
+            float[] cropid = new float[100];
             int j = 0;
             //cropList = DependencyService.Get<call_web_service>().get_crops(Global_portable.email);
             Email data = new Email();
             data.email = Global_portable.email;
             string json = JsonConvert.SerializeObject(data);
             //System.Diagnostics.Debug.WriteLine("Json object" + json);
-            string url = "http://192.168.43.104:5010/get_crops";
+            string url = "http://192.168.0.4:5010/get_crops";
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             using (var client = new HttpClient())
             {
@@ -46,6 +47,14 @@ namespace AISCM
                     {
                         //System.Diagnostics.Debug.WriteLine(x);
                         cropList[j] = x;
+                        j = j + 1;
+                    }
+                    j = 0;
+                    foreach (var x in final.cropid)
+                    {
+                        //System.Diagnostics.Debug.WriteLine(x);
+                        string a = x.ToString();
+                        cropid[j] = float.Parse(a, CultureInfo.InvariantCulture.NumberFormat);
                         j = j + 1;
                     }
                     //System.Diagnostics.Debug.WriteLine("the list is..."+cropList.ToString());
@@ -82,6 +91,7 @@ namespace AISCM
     }
     public class Selected_class
     {
+        public List<float> cropid { get; set; }
         public List<string> crop { get; set; }
     }
 }

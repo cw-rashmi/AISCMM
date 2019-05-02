@@ -278,7 +278,7 @@ namespace AISCM.Droid
             //net.azurewebsites.agc20171.AISCM agc = new net.azurewebsites.agc20171.AISCM();
             net.azurewebsites.aiscm.WebService1 w = new net.azurewebsites.aiscm.WebService1();
 
-            string url = "http://192.168.43.104:5010/signin?email=" + email;
+            string url = "http://192.168.0.4:5010/signin?email=" + email;
             string abc = "";
             using (var client = new HttpClient())
             {
@@ -323,6 +323,10 @@ namespace AISCM.Droid
                     Toast.MakeText(this, "From addfarmer page..." + id, ToastLength.Long);
                     StartActivity(typeof(MainActivity));
                     //await Xamarin.Forms.Application.Current.MainPage.Navigation.PushModalAsync(new MainPage());
+                    break;
+                case 3:
+                    Toast.MakeText(this, "In Company login..." + id, ToastLength.Long);
+                    StartActivity(typeof(MainActivity));
                     break;
 
             }

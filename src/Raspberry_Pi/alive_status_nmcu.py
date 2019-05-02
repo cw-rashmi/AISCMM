@@ -1,79 +1,96 @@
-import subprocess
 import os
 import socket
 import csv
 import time,sched
-import RPi.GPIO as GPIO
 import glob
 import logging
 import json
 import requests
-s = sched.scheduler(time.time, time.sleep)
 from threading import Timer
 from suds.client import Client
 
-headers={'Content-type': 'application/json'} #headers set to specify the content type of the data being sent to the URI
-URL = "http://192.168.43.104:5010/insert_ip" #URI to send JSON data to be inserted into insert_ip table
+#creating the instance of schedular
+s = sched.scheduler(time.time, time.sleep)
 
-def run_sensor_status(): # checks is the nodemcu is functioning else sends the ip of faulty to server
-    faulty_nmcu=[]    
-    raspberry_id="1"
-    
-    send_noti="6"
-    
+headers={'Content-type': 'application/json'}
+#URL of flask server to update the nodemcu status
+URL = "http://192.168.43.196:5010/insert_ip"
+
+faulty_nmcu={}
+
+def run_sensor_status():   
     ip_list=[]
-    f=open("/home/pi/Desktop/nmcu_ip.csv","r") # opens file in read mode
-    file_contents=csv.reader(f) # reads each record from csv into a dictionary
-    ip_list=list(file_contents) # converts dictionary into list
+    UDP_PORT=1885
+    MESSAGE="aiscmm_smart_irrigation_169.254.152.165_sensor_status"
+    #reading the nodemcu ip address and id from csv file
+    f=open("/home/pi/Desktop/AICSMM/nmcu_ip.csv","r")
+    file_contents=csv.reader(f)
+    ip_list=list(file_contents)
+    
+    for i in range(len(ip_list)):
+        chunks=[]
+        chunks_list=[]
+        bytes_recd=0
+        #setting deadline for socket of 5 seconds
+        deadline = time.time() + 5.0
+        UDP_IP=ip_list[i][1]
         
-    for i in range(len(ip_list)):  # iterates for each ip of the nodemcus
-
-
-        try:
-            deadline = time.time() + 5.0 # used to set a time limit of 5 seconds
-            UDP_IP=ip_list[i][1]
-    
-            UDP_PORT=1885
-            MESSAGE="aiscmm_smart_irrigation_169.254.152.165_sensor_status" # message sent to the nodemcu requesting for sensor status
-            
-            print "UDP target ip:", UDP_IP
-            print "udp target port:", UDP_PORT
-            print "msg:",MESSAGE
-
-            sock=socket.socket(socket.AF_INET,socket.SOCK_DGRAM) # creates a socket
-            sock.sendto(MESSAGE,(UDP_IP, UDP_PORT)) # udp message is sent to the specific nodemcu using ip and port
+        print "UDP target ip:", UDP_IP
+        print "udp target port:", UDP_PORT
+        print "msg:",MESSAGE
+        try:           
+            #creating socket for each nodemcu to request status
+            sock=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+            sock.sendto(MESSAGE,(UDP_IP, UDP_PORT))
             print "Packet send"
-            sock.settimeout(deadline-time.time()) # closes connection after timeout
-            chunks=[]
-            bytes_recd=0
-            chunks=sock.recv(4096) # receives data sent by nodemcu
-    
-            chunks_list=[]
+            #socket will exist for only 5 seconds
+            sock.settimeout(deadline-time.time())
+            chunks=sock.recv(4096)
             chunks_list=chunks.split(",")
-    
             st=chunks_list[0]
             print st
-            raspberry_id="1"
-            send_noti="6"
-            if st!="alive": 
-                faulty_nmcu.append(ip_list[i]) # unrechable ips are appended into the list
             
+            #if the nodemcu is responding other than alive
+            if st!="alive":
+                if ip_list[i][1] in faulty_nmcu.keys():
+                        faulty_nmcu[ip_list[i][1]]=faulty_nmcu[ip_list[i][1]]+1
+                    
+                else:
+                        faulty_nmcu[ip_list[i][1]]=1
+            elif st=="alive":
+                if ip_list[i][1] in faulty_nmcu.keys():
+                    faulty_nmcu.pop(ip_list[i][1])
+                    print(faulty_nmcu)
             
         except socket.timeout:
             print "time out"
-            faulty_nmcu.append(ip_list[i])
-            continue
-    print faulty_nmcu
-    return faulty_nmcu
-
-    
-faulty_nmcu=run_sensor_status()
-for row in faulty_nmcu: # iterates through each faulty nodemcu ip
-    data={"nodemcu_id":row[0],"raspberry_id":1,"nodemcu_ip":row[1],"raspberry_ip":"169.254.152.165","email":"rashmipawar921@gmail.com"} # creates dictionary of current values to be sent to server
+            if ip_list[i][1] in faulty_nmcu.keys():
+                    faulty_nmcu[ip_list[i][1]]=faulty_nmcu[ip_list[i][1]]+1
                     
-    json_data = json.dumps(data) # converts dictionary to json
-    r = requests.get(url = URL, json = json_data, headers = headers) # sends json data to the URI
-print "data is updated to db"
-
+            else:
+                    faulty_nmcu[ip_list[i][1]]=1
+            continue
+        
+    print faulty_nmcu
+    
+    for key,value in faulty_nmcu.items():
+        #if any nodemcu is detected faulty more than 3 times then it is declared as dead and results are updated to server
+        if value>3:
+            id=[x[0] for x in ip_list if x[1]==key]
+            data={"nodemcu_id":id[0],"raspberry_id":1,"nodemcu_ip":key,"raspberry_ip":"169.254.152.165","email":"rashmipawar921@gmail.com"}
+            print(data)       
+            json_data = json.dumps(data)
+            try:
+                    r = requests.get(url = URL, json = json_data, headers = headers, timeout=5)
+            except requests.exceptions.RequestException as e:
+                pass
+    print "data is updated to db"
+    
+#infinite loop that will schedule the execution after each 5 seconds
+while(1):
+    print("starting run_sensor_status.....................")    
+    s.enter(5, 1, run_sensor_status, ())
+    print("done status....................")
+    s.run()
     
 

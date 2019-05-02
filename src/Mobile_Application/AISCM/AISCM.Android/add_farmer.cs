@@ -36,7 +36,7 @@ namespace AISCM.Droid
 
             string json = JsonConvert.SerializeObject(people);
 
-            string url = "http://192.168.43.104:5010/signin?email=" + json;
+            string url = "http://192.168.0.4:5010/signin?email=" + json;
             string abc = "";
             using (var client = new HttpClient())
             {

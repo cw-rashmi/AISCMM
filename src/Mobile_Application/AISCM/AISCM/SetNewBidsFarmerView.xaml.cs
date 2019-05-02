@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -34,6 +35,7 @@ namespace AISCM
 
 
             String[] cropList = new String[100];
+            float[] cropid = new float[100];
             //cropList = DependencyService.Get<call_web_service>().get_crops(Global_portable.email);
             int j = 0;
             //cropList = DependencyService.Get<call_web_service>().get_crops(Global_portable.email);
@@ -41,7 +43,7 @@ namespace AISCM
             data.email = Global_portable.email;
             string json = JsonConvert.SerializeObject(data);
             System.Diagnostics.Debug.WriteLine("Json object" + json);
-            string url = "http://192.168.43.104:5010/get_crops";
+            string url = "http://192.168.0.4:5010/get_crops";
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             using (var client = new HttpClient())
             {
@@ -60,6 +62,14 @@ namespace AISCM
                         cropList[j] = x;
                         j = j + 1;
                     }
+                    j = 0;
+                    foreach (var x in final.cropid)
+                    {
+                        //System.Diagnostics.Debug.WriteLine(x);
+                        string a = x.ToString();
+                        cropid[j] = float.Parse(a, CultureInfo.InvariantCulture.NumberFormat);
+                        j = j + 1;
+                    }
                     System.Diagnostics.Debug.WriteLine("the list is..." + cropList.ToString());
                 }
             }
@@ -71,7 +81,7 @@ namespace AISCM
                 string cropID = "";
                 string cName = "";
 
-                cropID = "1";
+                cropID = cropid[i].ToString();
 
                 cName = cropList[i];
                 System.Diagnostics.Debug.WriteLine("===={0}===={1}", cropID.ToString(), cName);
@@ -114,9 +124,9 @@ namespace AISCM
             data2.appx_prod = quant;
             data2.cropid = id;
             data2.rate_per_qtl = baseRate;
-            string json = JsonConvert.SerializeObject(data);
+            string json = JsonConvert.SerializeObject(data2);
             System.Diagnostics.Debug.WriteLine("Json object" + json);
-            string url = "http://192.168.43.104:5010/set_new_bid";
+            string url = "http://192.168.0.4:5010/set_new_bid";
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             using (var client = new HttpClient())
             {

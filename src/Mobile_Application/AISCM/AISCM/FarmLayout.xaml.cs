@@ -21,8 +21,8 @@ namespace AISCM
             people.email = Global_portable.email;
             string json = JsonConvert.SerializeObject(people);
             System.Diagnostics.Debug.WriteLine("Json object" + json);
-            string url1 = "http://192.168.43.104:5010/select_ip";
-            string url2 = "http://192.168.43.104:5010/select_mois_data";
+            string url1 = "http://192.168.0.4:5010/select_ip";
+            string url2 = "http://192.168.0.4:5010/select_mois_data";
             string[] mcu_list = new string[50];
             float mois_data_1 = 0;
             float mois_data_2 = 0;

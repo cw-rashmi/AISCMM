@@ -30,10 +30,10 @@ namespace AISCM
             data.email = Global_portable.email;
             string json = JsonConvert.SerializeObject(data);
             System.Diagnostics.Debug.WriteLine("Json object" + json);
-            string url = "http://192.168.43.104:5010/get_bids";
+            string url = "http://192.168.0.4:5010/get_bids";
 
             string[] cropname = new string[500];
-            float[] bid_id = new float[500];
+            string[] bid_id = new string[500];
             float[] approximate_production = new float[500];
             float[] rate_per_qtl = new float[500];
             int count = 0;
@@ -48,13 +48,13 @@ namespace AISCM
                     // ... Read the string.
                     Task<string> result2 = content3.ReadAsStringAsync();
                     res = result2.Result;
-                    System.Diagnostics.Debug.WriteLine("response in farm data page ress" + res);
+                    System.Diagnostics.Debug.WriteLine("response in accepted bid page ress" + res);
                     bid_data2 final = JsonConvert.DeserializeObject<bid_data2>(res);
                     int i = 0;
                     foreach (var x in final.bid_id)
                     {
                         string a = x.ToString();
-                        bid_id[i] = float.Parse(a, CultureInfo.InvariantCulture.NumberFormat);
+                        bid_id[i] = x;
                         i = i + 1;
                     }
                     count = i;
@@ -72,7 +72,7 @@ namespace AISCM
                         i = i + 1;
                     }
                     i = 0;
-                    foreach (var x in final.rate_per_qtl)
+                    foreach (var x in final.cropid)
                     {
                         string a = x.ToString();
                         rate_per_qtl[i] = float.Parse(a, CultureInfo.InvariantCulture.NumberFormat);
@@ -86,7 +86,7 @@ namespace AISCM
             getAcceptedBids = new ObservableCollection<AcceptedBidsModel>();
             for (int i = 0; i < bid_id.Length; i++)
             {
-                float bidID = 0;
+                string bidID = "";
                 string cropName = "";
                 float quantity = 0;
                 float rate = 0;

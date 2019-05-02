@@ -35,7 +35,7 @@ namespace AISCM
             data.email = Global_portable.email;
             string json = JsonConvert.SerializeObject(data);
             System.Diagnostics.Debug.WriteLine("Json object" + json);
-            string url = "http://192.168.43.104:5010/predict_crops";
+            string url = "http://192.168.0.4:5010/predict_crops";
             System.Diagnostics.Debug.WriteLine(cropList);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             using (var client = new HttpClient())

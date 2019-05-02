@@ -33,7 +33,7 @@ namespace AISCM
             people.email = Global_portable.email;
             string json = JsonConvert.SerializeObject(people);
             System.Diagnostics.Debug.WriteLine("Json object" + json);
-            string url = "http://192.168.43.104:5010/get_water_status";
+            string url = "http://192.168.0.4:5010/get_water_status";
             string status = "";
             float level = 0;
             var content = new StringContent(json, Encoding.UTF8, "application/json");

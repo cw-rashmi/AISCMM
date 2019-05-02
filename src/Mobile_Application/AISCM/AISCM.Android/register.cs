@@ -197,7 +197,7 @@ namespace AISCM.Droid
             data.name = name;
             System.Diagnostics.Debug.WriteLine(data);
             string json = JsonConvert.SerializeObject(data);
-            string url = "http://192.168.43.104:5010/signup";
+            string url = "http://192.168.0.4:5010/signup";
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             using (var client = new HttpClient())
             {

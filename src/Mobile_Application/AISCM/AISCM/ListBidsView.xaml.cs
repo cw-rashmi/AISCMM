@@ -24,15 +24,16 @@ namespace AISCM
         {
             InitializeComponent();
             String[] bidList = new String[100];
+            int i = 0;
             //bidList = DependencyService.Get<call_web_service>().get_bids(Global_portable.email);
             Email data = new Email();
             data.email = Global_portable.email;
             string json = JsonConvert.SerializeObject(data);
             System.Diagnostics.Debug.WriteLine("Json object" + json);
-            string url = "http://192.168.43.104:5010/get_accepted_bids";
+            string url = "http://192.168.0.4:5010/get_accepted_bids";
 
             string[] cropname = new string[500];
-            float[] bid_id = new float[500];
+            string[] bid_id = new string[500];
             float[] approximate_production = new float[500];
             float[] rate_per_qtl = new float[500];
             int count = 0;
@@ -49,30 +50,33 @@ namespace AISCM
                     res = result2.Result;
                     System.Diagnostics.Debug.WriteLine("response in farm data page ress" + res);
                     bid_data2 final = JsonConvert.DeserializeObject<bid_data2>(res);
-                    int i = 0;
                     foreach (var x in final.bid_id)
                     {
+                        System.Diagnostics.Debug.WriteLine(x);
                         string a = x.ToString();
-                        bid_id[i] = float.Parse(a, CultureInfo.InvariantCulture.NumberFormat);
+                        bid_id[i] = x;
                         i = i + 1;
                     }
                     count = i;
                     i = 0;
                     foreach (var x in final.cropname)
                     {
+                        System.Diagnostics.Debug.WriteLine(x);
                         cropname[i] = x;
                         i = i + 1;
                     }
                     i = 0;
                     foreach (var x in final.approximate_production)
                     {
+                        System.Diagnostics.Debug.WriteLine(x);
                         string a = x.ToString();
                         approximate_production[i] = float.Parse(a, CultureInfo.InvariantCulture.NumberFormat);
                         i = i + 1;
                     }
                     i = 0;
-                    foreach (var x in final.rate_per_qtl)
+                    foreach (var x in final.cropid)
                     {
+                        System.Diagnostics.Debug.WriteLine(x);
                         string a = x.ToString();
                         rate_per_qtl[i] = float.Parse(a, CultureInfo.InvariantCulture.NumberFormat);
                         i = i + 1;
@@ -85,9 +89,9 @@ namespace AISCM
 
             if (bid_id != null)
             {
-                for (int i = 0; i < bid_id.Length; i++)
+                for (int j = 0; j < i; j++)
                 {
-                    float bidID = 0;
+                    string bidID = "";
                     float cropID = 0;
                     string cropName = "";
                     float cropQuantity = 0;
@@ -95,16 +99,16 @@ namespace AISCM
 
                     int currloc = 0;
                     int nextloc = 0;
-                    nextloc = bidList[i].IndexOf(",", currloc);
+                    //nextloc = bidList[i].IndexOf(",", currloc);
                     //System.Diagnostics.Debug.WriteLine("==========={0} - {1}==========", currloc, nextloc);
-                    bidID = bid_id[i];
+                    bidID = bid_id[j];
                     //System.Diagnostics.Debug.WriteLine("==========={0} - {1}==========", currloc, nextloc);
                     // currloc = nextloc + 1;
                     // nextloc = bidList[i].IndexOf(",", currloc);
                     // System.Diagnostics.Debug.WriteLine("==========={0} - {1}==========", currloc, bidID);
-                    cropName = cropname[i];
-                    cropQuantity = approximate_production[i];
-                    cropRate = rate_per_qtl[i];
+                    cropName = cropname[j];
+                    cropQuantity = approximate_production[j];
+                    cropRate = rate_per_qtl[j];
 
 
                     System.Diagnostics.Debug.WriteLine("===========bID - {0} - Crop - {1}==========", bidID, cropName);
@@ -113,7 +117,7 @@ namespace AISCM
 
                     System.Diagnostics.Debug.WriteLine("Crops:{0} - {1} - {2} - {3}", bidID, cropName, cropQuantity, cropRate);
                     //bidds.Add(new ListBidsModel { Name = cropName, BidID = bidID, CropRate = cropRate, CropQuantity = cropQuantity });
-                    CropItems.Add(bidID.ToString(), string.Format("{0}\nCrop : {1}\nQuantiy(Qtl) : {2}",bidID, cropName, cropQuantity));
+                    CropItems.Add(bidID.ToString(), string.Format("{0}\nCrop : {1}\nQuantiy(Qtl) : {2}", bidID, cropName, cropQuantity));
                 }
 
                 //lstView.ItemsSource = bidds;
@@ -178,7 +182,7 @@ namespace AISCM
         void OnSelectedItem(object sender, SelectedItemChangedEventArgs e)
         {
             var item = e.SelectedItem.ToString();
-            System.Diagnostics.Debug.WriteLine("Selected Crop==================={0}",item);
+            System.Diagnostics.Debug.WriteLine("Selected Crop==================={0}", item);
             int currloc = 0;
             int nextloc = 0;
             nextloc = item.IndexOf(",", currloc);
@@ -187,22 +191,47 @@ namespace AISCM
             nextloc = item.IndexOf("]", currloc);
             string cropName = item.Substring(currloc + 1, (nextloc - currloc));
 
-            DependencyService.Get<call_web_service>().set_bids(Global_portable.email, bidID);
-            DisplayAlert("Alert", "New Bid Accepted Successfully!!!", "OK");
-            System.Diagnostics.Debug.WriteLine("Selected Crop==================={0}==={1}===", bidID, Global_portable.email);
+            //DependencyService.Get<call_web_service>().set_bids(Global_portable.email, bidID);
+            accept_bid data = new accept_bid();
+            data.email = Global_portable.email;
+            data.bidid = bidID;
+            string json = JsonConvert.SerializeObject(data);
+            System.Diagnostics.Debug.WriteLine("Json object" + json);
+            string url = "http://192.168.0.4:5010/accept_bid";
 
-            Navigation.PushAsync(new CropMarketView());
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            using (var client = new HttpClient())
+            {
+                var result = client.PostAsync(url, content).Result;
+                string res = "";
+                using (HttpContent content3 = result.Content)
+                {
+                    // ... Read the string.
+                    Task<string> result2 = content3.ReadAsStringAsync();
+                    res = result2.Result;
+                    System.Diagnostics.Debug.WriteLine("response in farm data page ress" + res);
+                }
+                DisplayAlert("Alert", "New Bid Accepted Successfully!!!", "OK");
+                System.Diagnostics.Debug.WriteLine("Selected Crop==================={0}==={1}===", bidID, Global_portable.email);
+
+                Navigation.PushAsync(new CropMarketView());
 
 
 
+            }
         }
     }
     public class bid_data2
     {
-        public List<float> bid_id { get; set; }
+        public List<string> bid_id { get; set; }
         public List<string> cropname { get; set; }
         public List<float> approximate_production { get; set; }
-        public List<float> rate_per_qtl { get; set; }
+        public List<float> cropid { get; set; }
 
+    }
+    public class accept_bid
+    {
+        public string email { get; set; }
+        public string bidid { get; set; }
     }
 }

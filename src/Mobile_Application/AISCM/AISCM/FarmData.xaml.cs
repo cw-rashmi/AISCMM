@@ -23,7 +23,7 @@ namespace AISCM
             data.email = Global_portable.email;
             string json = JsonConvert.SerializeObject(data);
             System.Diagnostics.Debug.WriteLine("Json object" + json);
-            string url = "http://192.168.43.104:5010/get_current_farm_status";
+            string url = "http://192.168.0.4:5010/get_current_farm_status";
             string[] status = new string[500];
             float[] level = new float[500];
             float[] temp = new float[500];

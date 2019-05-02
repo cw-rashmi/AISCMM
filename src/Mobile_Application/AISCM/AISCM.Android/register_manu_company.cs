@@ -42,7 +42,7 @@ namespace AISCM.Droid
                   data.region = region;
                   string json = JsonConvert.SerializeObject(data);
                   System.Diagnostics.Debug.WriteLine("Json object" + json);
-                  string url = "http://192.168.43.104:5010/add_manufacturing_company_details";
+                  string url = "http://192.168.0.4:5010/add_manufacturing_company_details";
                   var content = new StringContent(json, Encoding.UTF8, "application/json");
                   using (var client = new HttpClient())
                   {

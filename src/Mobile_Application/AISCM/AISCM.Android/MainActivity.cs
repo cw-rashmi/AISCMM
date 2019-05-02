@@ -41,14 +41,15 @@ namespace AISCM.Droid
                     //system admin
                     case 1:
                         //Xamarin.Forms.NavigationPage np1 = new Xamarin.Forms.NavigationPage(new homepage());
-
                         break;
                     //farmer login
                     case 2:
+                        System.Diagnostics.Debug.WriteLine("inside...");
                         Xamarin.Forms.NavigationPage np2 = new Xamarin.Forms.NavigationPage(new index());
                         break;
                     //manufacturing company login
                     case 3:
+                        System.Diagnostics.Debug.WriteLine("here");
                         Xamarin.Forms.NavigationPage np3 = new Xamarin.Forms.NavigationPage(new CropMarketView());
                         break;
                     //market admin login

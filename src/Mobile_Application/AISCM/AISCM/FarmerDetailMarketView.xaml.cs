@@ -25,7 +25,7 @@ namespace AISCM
             data.email = Global_portable.email;
             string json = JsonConvert.SerializeObject(data);
             System.Diagnostics.Debug.WriteLine("Json object" + json);
-            string url = "http://192.168.43.104:5010/get_bid_details_mucp";
+            string url = "http://192.168.0.4:5010/get_bid_details_mucp";
 
             string[] cropname = new string[500];
             float[] bid_id = new float[500];
